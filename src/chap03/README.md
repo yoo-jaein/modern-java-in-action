@@ -136,14 +136,43 @@ public interface Supplier<T> {
 - get이라는 추상 메서드를 제공한다.
 
 ### UnaryOperator<T>
+```java
+// java.util.function.UnaryOperator<T>
+@FunctionalInterface
+public interface UnaryOperator<T> extends Function<T, T> {
+	//...
+}
+```
+
+- 제네릭 형식 T의 객체를 인수로 받아서 동일한 타입 T의 객체를 반환한다.
+- Function<T, R>을 확장한 인터페이스다.
 
 ### BinaryOperator<T>
+```java
+// java.util.function.BinaryOperator<T>
+@FunctionalInterface
+public interface BinaryOperator<T> extends BiFunction<T,T,T> {
+	//...
+}
+```
+
+- 제네릭 형식 T의 객체 2개를 인수로 받아서 동일한 타입 T의 객체를 반환한다.
+- BiFunction<T, U, R>을 확장한 인터페이스다.
 
 ### BiPredicate<L, R>
 
 ### BiConsumer<T, U>
 
 ### BiFunction<T, U, R>
+```java
+// java.util.function.BiFunction<T, U, R>
+@FunctionalInterface
+public interface BiFunction<T, U, R> { 
+	R apply(T t, U u);
+}
+```
+
+- 제네릭 형식 T의 객체 1개, 제네릭 형식 U의 객체 1개를 인수로 받아서 제네릭 형식 R의 객체를 반환한다.
 
 ## 메서드 참조
 메서드 참조(method reference, 메서드 레퍼런스)는 '특정 메서드만 호출하는 람다'의 축약형이다. 메서드명 앞에 구분자(::)를 붙이는 방식을 사용하며, 실제로 메서드를 호출하는 것은 아니기 때문에 괄호는 필요 없다. 
@@ -160,6 +189,65 @@ Apple::new
 Letter::checkSpelling
 ```
 
+## 람다 표현식 사용 팁
+### 1. 람다 표현식을 이너 클래스로 취급하지 말기
+
+본질적으로 내부 클래스를 람다 식으로 대체한 이전 예에도 불구하고 두 개념은 중요한 면에서 다릅니다.
+
+내부 클래스를 사용하면 새 범위가 생성됩니다. 같은 이름의 새 지역 변수를 인스턴스화하여 둘러싸는 범위에서 지역 변수를 숨길 수 있습니다. 내부 클래스 내에서 this 키워드를 인스턴스에 대한 참조로 사용할 수도 있습니다.
+
+그러나 람다 표현식은 범위를 둘러싸고 작동합니다. 우리는 람다 바디 내부의 둘러싸는 범위에서 변수를 숨길 수 없습니다. 이 경우 키워드 this는 둘러싸는 인스턴스에 대한 참조입니다.
+
+### 2. Lambda 본문에서 코드 블록 피하기
+이상적인 상황에서 람다는 한 줄의 코드로 작성되어야 합니다. 이 접근 방식에서 람다는 어떤 데이터로 어떤 작업을 실행해야 하는지 선언하는 자체 설명 구조입니다(매개변수가 있는 람다의 경우).
+
+코드 블록이 크면 람다의 기능이 즉시 명확하지 않습니다.
+
+### 3. 매개변수 유형 지정 피하기
+A compiler, in most cases, is able to resolve the type of lambda parameters with the help of type inference. Consequently, adding a type to the parameters is optional and can be omitted.
+
+We can do this:
+
+(a, b) -> a.toLowerCase() + b.toLowerCase();
+Instead of this:
+
+(String a, String b) -> a.toLowerCase() + b.toLowerCase();
+
+### 3. 단일 매개변수 주위에 괄호를 사용하지 말기
+Lambda syntax only requires parentheses around more than one parameter, or when there is no parameter at all. That's why it's safe to make our code a little bit shorter, and to exclude parentheses when there is only one parameter.
+
+So we can do this:
+
+a -> a.toLowerCase();
+Instead of this:
+
+(a) -> a.toLowerCase();
+
+### 4. "Effectively Final" 변수를 사용하기
+Accessing a non-final variable inside lambda expressions will cause a compile-time error, but that doesn’t mean that we should mark every target variable as final.
+
+According to the “effectively final” concept, a compiler treats every variable as final as long as it is assigned only once.
+
+It's safe to use such variables inside lambdas because the compiler will control their state and trigger a compile-time error immediately after any attempt to change them.
+
+This approach should simplify the process of making lambda execution thread-safe.
+
+
+### 5. 돌연변이로부터 개체 변수 보호하기
+One of the main purposes of lambdas is use in parallel computing, which means that they're really helpful when it comes to thread-safety.
+
+The “effectively final” paradigm helps a lot here, but not in every case. Lambdas can't change a value of an object from enclosing scope. But in the case of mutable object variables, a state could be changed inside lambda expressions.
+
+Consider the following code:
+
+int[] total = new int[1];
+Runnable r = () -> total[0]++;
+r.run();
+This code is legal, as total variable remains “effectively final,” but will the object it references have the same state after execution of the lambda? No!
+
+Keep this example as a reminder to avoid code that can cause unexpected mutations.
+
 ## 참고
 https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html  
 https://www.baeldung.com/java-8-functional-interfaces  
+https://www.baeldung.com/java-8-lambda-expressions-tips  
