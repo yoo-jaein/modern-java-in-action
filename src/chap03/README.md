@@ -109,9 +109,7 @@ public interface Function<T, R> {
 따라서 자바 8에서는 오토박싱을 피할 수 있도록 기본형을 위한 함수형 인터페이스를 제공한다. 예를 들어 IntPredicate의 경우 int t를 인수로 받아 boolean을 반환한다.   
 
 ### Two-Arity Function Specializations
-두 개의 인수로 람다를 정의하려면 BiFunction, ToDoubleBiFunction, ToIntBiFunction, ToLongBiFunction과 같이 이름에 "Bi" 키워드가 포함된 인터페이스를 사용해야 한다.  
-
-표준 API에서 이 인터페이스를 사용하는 일반적인 예 중 하나는 Map.replaceAll 메서드에 있습니다. 이 메서드를 사용하면 Map의 모든 값을 일부 계산된 값으로 바꿀 수 있습니다.  
+두 개의 인수로 람다를 정의하려면 BiFunction, ToDoubleBiFunction, ToIntBiFunction, ToLongBiFunction과 같이 이름에 "Bi" 키워드가 포함된 인터페이스를 사용해야 한다. 표준 API에서 이 인터페이스를 사용하는 예시는 Map.replaceAll()이다.  
 
 ```java
 Map<String, Integer> salaries = new HashMap<>();
@@ -119,8 +117,7 @@ salaries.put("John", 40000);
 salaries.put("Freddy", 30000);
 salaries.put("Samuel", 50000);
 
-salaries.replaceAll((name, oldValue) -> 
-  name.equals("Freddy") ? oldValue : oldValue + 10000);
+salaries.replaceAll((name, oldValue) -> name.equals("Freddy") ? oldValue : oldValue + 10000);
 ```
 
 ### Supplier<T>
@@ -159,9 +156,27 @@ public interface BinaryOperator<T> extends BiFunction<T,T,T> {
 - 제네릭 형식 T의 객체 2개를 인수로 받아서 동일한 타입 T의 객체를 반환한다.
 - BiFunction<T, U, R>을 확장한 인터페이스다.
 
-### BiPredicate<L, R>
+### BiPredicate<T, U>
+```java
+// java.util.function.BiPredicate<T, U>
+@FunctionalInterface
+public interface BiPredicate<T, U> { 
+	boolean test(T t, U u);
+}
+```
+
+- 제네릭 형식 T의 객체 1개, 제네릭 형식 U의 객체 1개를 인수로 받아서 boolean을 반환한다.
 
 ### BiConsumer<T, U>
+```java
+// java.util.function.BiPConsumer<T, U>
+@FunctionalInterface
+public interface BiConsumer<T, U> {
+	void accept(T t, U u);
+}
+```
+
+- 제네릭 형식 T의 객체 1개, 제네릭 형식 U의 객체 1개를 인수로 받아서 void를 반환한다.
 
 ### BiFunction<T, U, R>
 ```java
@@ -190,62 +205,36 @@ Letter::checkSpelling
 ```
 
 ## 람다 표현식 사용 팁
-### 1. 람다 표현식을 이너 클래스로 취급하지 말기
+### 1. 람다 표현식을 익명 클래스와 동일하게 취급하지 말기
+[geeksforgeeks.org/difference-between-anonymous-inner-class-and-lambda-expression/](geeksforgeeks.org/difference-between-anonymous-inner-class-and-lambda-expression/)  
+익명 클래스를 람다 표현식으로 대체한 이전 사례에도 불구하고 두 개념에는 차이가 있다. 람다 표현식 내에서 this 키워드를 사용하면 현재 클래스를 나타내는 반면, 익명 클래스의 경우 this 클래스는 해당 익명 클래스를 나타낸다.
 
-본질적으로 내부 클래스를 람다 식으로 대체한 이전 예에도 불구하고 두 개념은 중요한 면에서 다릅니다.
+### 2. 파라미터 타입 생략하기
+컴파일러는 형식 추론을 통해 람다 파라미터의 형식을 확인할 수 있다. 따라서 파라미터에 유형을 추가하는 것은 선택 사항이며 생략할 수 있다.
 
-내부 클래스를 사용하면 새 범위가 생성됩니다. 같은 이름의 새 지역 변수를 인스턴스화하여 둘러싸는 범위에서 지역 변수를 숨길 수 있습니다. 내부 클래스 내에서 this 키워드를 인스턴스에 대한 참조로 사용할 수도 있습니다.
-
-그러나 람다 표현식은 범위를 둘러싸고 작동합니다. 우리는 람다 바디 내부의 둘러싸는 범위에서 변수를 숨길 수 없습니다. 이 경우 키워드 this는 둘러싸는 인스턴스에 대한 참조입니다.
-
-### 2. Lambda 본문에서 코드 블록 피하기
-이상적인 상황에서 람다는 한 줄의 코드로 작성되어야 합니다. 이 접근 방식에서 람다는 어떤 데이터로 어떤 작업을 실행해야 하는지 선언하는 자체 설명 구조입니다(매개변수가 있는 람다의 경우).
-
-코드 블록이 크면 람다의 기능이 즉시 명확하지 않습니다.
-
-### 3. 매개변수 유형 지정 피하기
-A compiler, in most cases, is able to resolve the type of lambda parameters with the help of type inference. Consequently, adding a type to the parameters is optional and can be omitted.
-
-We can do this:
-
-(a, b) -> a.toLowerCase() + b.toLowerCase();
-Instead of this:
-
+```java
 (String a, String b) -> a.toLowerCase() + b.toLowerCase();
+```
 
-### 3. 단일 매개변수 주위에 괄호를 사용하지 말기
-Lambda syntax only requires parentheses around more than one parameter, or when there is no parameter at all. That's why it's safe to make our code a little bit shorter, and to exclude parentheses when there is only one parameter.
+```java
+(a, b) -> a.toLowerCase() + b.toLowerCase();
+```
 
-So we can do this:
+### 3. 단일 파라미터 주위에 괄호를 사용하지 말기
+람다 파라미터가 하나만 있는 경우 괄호를 제외하면 코드를 조금 더 짧게 만들 수 있다.
 
+```java
 a -> a.toLowerCase();
-Instead of this:
+```
 
+```java
 (a) -> a.toLowerCase();
+```
 
 ### 4. "Effectively Final" 변수를 사용하기
-Accessing a non-final variable inside lambda expressions will cause a compile-time error, but that doesn’t mean that we should mark every target variable as final.
+람다 표현식 내에서 final이 아닌 변수에 액세스하면 컴파일 에러가 발생한다. 그렇다고 해서 모든 대상 변수를 final로 선언해야 하는 것은 아니다.
 
-According to the “effectively final” concept, a compiler treats every variable as final as long as it is assigned only once.
-
-It's safe to use such variables inside lambdas because the compiler will control their state and trigger a compile-time error immediately after any attempt to change them.
-
-This approach should simplify the process of making lambda execution thread-safe.
-
-
-### 5. 돌연변이로부터 개체 변수 보호하기
-One of the main purposes of lambdas is use in parallel computing, which means that they're really helpful when it comes to thread-safety.
-
-The “effectively final” paradigm helps a lot here, but not in every case. Lambdas can't change a value of an object from enclosing scope. But in the case of mutable object variables, a state could be changed inside lambda expressions.
-
-Consider the following code:
-
-int[] total = new int[1];
-Runnable r = () -> total[0]++;
-r.run();
-This code is legal, as total variable remains “effectively final,” but will the object it references have the same state after execution of the lambda? No!
-
-Keep this example as a reminder to avoid code that can cause unexpected mutations.
+"Effectively final" 개념에 따르면 컴파일러는 한 번만 할당되는 변수를 final로 취급한다. 따라서 Effectively final 변수를 사용해서 람다의 실행을 스레드 세이프하게 만들어야 한다.
 
 ## 참고
 https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html  
