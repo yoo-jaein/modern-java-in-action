@@ -32,6 +32,10 @@
 - 워커 스레드는 한 번에 하나의 작업만 실행할 수 있다.
 - 각 스레드는 작업을 저장하는 양방향 큐(또는 데크)가 있다.
 
+### ForkJoinTask
+- ForkJoinPool 내에서 동작하는 태스크를 위한 추상 클래스다.
+- void 작업의 경우 RecursiveAction, 값을 반환하는 작업의 경우 RecursiveTask<V>라는 두 가지 하위 클래스 중 하나를 확장해야 한다. 두 하위 클래스에는 추상 메서드 compute()가 있다.
+
 ### RecursiveTask의 compute()
 compute 메서드는 다음의 의사코드 형식을 가진다.
 
