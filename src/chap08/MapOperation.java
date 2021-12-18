@@ -1,6 +1,5 @@
 package chap08;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,12 +38,33 @@ public class MapOperation {
 
 		System.out.println("==============");
 
-		Map<String, Integer> fruitsPriceMap2 = Map.ofEntries(
-				Map.entry("Cherry", 250),
-				Map.entry("Grape", 400),
-				Map.entry("Pear", 50)
+		Map<String, String> moviesMap = new HashMap<>();
+		moviesMap.put("Raphael", "Star Wars");
+		moviesMap.put("Olivia", "james bond");
+
+		moviesMap.replaceAll((key, value) -> value.toUpperCase());
+		moviesMap.forEach((key, value) -> System.out.println("key = " + key + ", value = " + value));
+
+		System.out.println("==============");
+
+		Map<String, Integer> bookPriceMap1 = Map.ofEntries(
+				Map.entry("Book A", 250),
+				Map.entry("Book B", 400),
+				Map.entry("Book C", 50)
 		);
 
+		Map<String, Integer> bookPriceMap2 = Map.ofEntries(
+				Map.entry("Book B", 400),
+				Map.entry("Book C", 150),
+				Map.entry("Book D", 500)
+		);
+
+		Map<String, Integer> totalBookPriceMap = new HashMap<>(bookPriceMap1);
+		// bookPriceMap1과 bookPriceMap2를 머지한 결과를 totalBookPriceMap에 저장한다.
+		// 만약 bookPriceMap1과 bookPriceMap2에 동일한 key가 있을 경우 두 value를 더한 값을 저장한다.
+		bookPriceMap2.forEach(
+				(key, value) -> totalBookPriceMap.merge(key, value, (book1, book2) -> book1 + book2));
+		totalBookPriceMap.forEach((key, value) -> System.out.println("key = " + key + ", value = " + value));
 
 	}
 }

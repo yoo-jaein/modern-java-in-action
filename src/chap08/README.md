@@ -6,11 +6,11 @@
 ### Set.of
 ### Map.of
 
-## 
+## 리스트와 집합 처리
 ### List.removeIf
 ### List.replaceAll
 
-##
+## 맵 처리
 ### Map.Entry
 ### Entry.comparingByValue
 ### Entry.comparingByKey
@@ -23,7 +23,7 @@
 ### Map.replace
 ### Map.merge
 
-##
+## 개선된 ConcurrentHashMap
 ### ConcurrentHashMap.reduceValues
 ### ConcurrentHashMap.mappingCount
 ### ConcurrentHashMap.keySet
