@@ -1,0 +1,63 @@
+# Chapter 11 null 대신 Optional 클래스
+java.util.Optional<T>
+
+## NullPointerException
+다음과 같은 상황에서 NullPointerException이 발생한다.
+
+- null 객체의 인스턴스 메서드를 호출할 때
+- null 객체의 필드에 액세스하거나 수정할 때
+- (배열처럼) null의 길이를 취할 때
+- (배열처럼) null 슬롯에 액세스하거나 수정할 때
+- (예외처럼) null을 throw할 때
+
+## NullPointerException 피하기
+```java
+public String getCarInsuranceName(Person person) {
+	if (person != null) {
+		Car car = person.getCar();
+		if (car != null) {
+			Insurance insurance = car.getInsurance();
+			if (insurance != null) {
+				return insurance.getName();
+			}
+		}
+	}
+	return "Unknown";
+}
+```
+1. 변수를 참조할 때마다 null을 확인한다. -> 모든 변수를 검사하기 때문에 인덴트 레벨이 증가한다. 가독성이 떨어진다.
+
+```java
+public String getCarInsuranceName(Person person) {
+	if (person == null) {
+		return "Unknown";
+	}
+	Car car = person.getCar();
+	if (car == null) {
+		return "Unknown";
+	}
+	Insurance insurance = car.getInsurance();
+	if (insurance == null) {
+		return "Unknown";
+	}
+	return insurance.getName();
+}
+```
+2. 중첩 if 블록을 없앴다. -> 출구가 너무 많아서 유지보수가 어렵다.
+
+## 다른 프로그래밍 언어에서 null 참조를 해결하는 방법
+- 그루비: 안전 내비게이션 연산자(?.)
+  ```groovy
+  def carInsuranceName = person?.car?.insurance?.name
+  ```
+- 하스켈: Maybe
+- 스칼라: Option[T]
+
+## Optional
+하스켈과 스칼라는 '값이 있거나 없음을 표현하는 형식'으로 null 참조를 해결한다. 자바 8은 이들의 영향을 받아 Optional<T>라는 새로운 클래스를 제공한다.
+
+- 값이 있으면 Optional 클래스는 값을 감싼다.
+- 값이 없으면 Optional.empty()로 Optional 인스턴스를 반환한다.
+
+## 참고
+https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html  
