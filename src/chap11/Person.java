@@ -3,10 +3,10 @@ package chap11;
 import java.util.Optional;
 
 public class Person {
-	private Optional<Car> car;
+	private Car car;
 	private int age;
 
-	public Optional<Car> getCar() {
+	public Car getCar() {
 		return car;
 	}
 
