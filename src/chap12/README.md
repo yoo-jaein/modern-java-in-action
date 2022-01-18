@@ -38,11 +38,11 @@ DateFormat과 SimpleDateFormat 내부에는 작업에 사용되는 Calendar 인�
 
 스레드 세이프하게 날짜 formatter를 재사용하는 첫 번째 방법은 날짜 형식을 ThreadLocal에 넣는 것이다. 일부 라이브러리에서 한 스레드 내에서 동일한 형식을 여러 번 사용해야 하는 경우 이 방식을 이용한다.  
 ```java
-private static final ThreadLocal<DateFormat> formatters = 
-        ThreadLocal.withInitial(() -> new SimpleDateFormat("dd-MMM-yyyy"));
+private static final ThreadLocal<DateFormat> formatters =
+    ThreadLocal.withInitial(() -> new SimpleDateFormat("dd-MMM-yyyy"));
 ```
 
-두 번째 방법은 SimpleDateFormat 대신 스레드 세이프한 joda-time의 DateTimeFormat을 사용하는 것이다.  
+두 번째 방법은 SimpleDateFormat 대신 스레드 세이프한 joda-time 혹은 자바 8의 DateTimeFormat을 사용하는 것이다.  
 ```java
 DateTime dt = new DateTime();
 DateTimeFormatter fmt = DateTimeFormat.forPattern("MMMM, yyyy");
@@ -57,7 +57,7 @@ public static void main(String[] args) throws Exception {
 
     final DateFormat format = new SimpleDateFormat("yyyyMMdd");
 
-    Callable<Date> task = new Callable<Date>(){
+    Callable<Date> task = new Callable<Date>() {
         public Date call() throws Exception {
             return format.parse("20101022");
         }
@@ -68,13 +68,13 @@ public static void main(String[] args) throws Exception {
     List<Future<Date>> results = new ArrayList<Future<Date>>();
 
     //perform 10 date conversions
-    for(int i = 0 ; i < 10 ; i++){
+    for (int i = 0; i < 10; i++) {
         results.add(exec.submit(task));
-        }
+    }
     exec.shutdown();
 
     //look at the results
-    for(Future<Date> result : results){
+    for (Future<Date> result : results) {
         System.out.println(result.get());
     }
 }
@@ -158,44 +158,61 @@ Caused by: java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for 
 ```
 
 ## Temporal
-java.time.Temporal
-날짜와 시간 API의 모든 클래스가 구현하는 인터페이스
+- java.time.Temporal
+- Temporal 인터페이스는 날짜와 시간 API의 모든 클래스가 구현하는 인터페이스다.
+- 특정 시간을 모델링하는 객체의 값을 어떻게 읽고 조작할지 정의한다.
 
 ## LocalDate
-java.time.LocalDate
+- java.time.LocalDate
+- LocalDate 인스턴스는 날짜를 표현하는 불변 객체다.
+- 시간대 정보를 포함하지 않는다.
+- 팩토리 메서드 now()는 시스템 시계의 정보를 이용해서 현재 날짜 정보를 얻는다.
+- 날짜 문자열에서 LocalDate의 인스턴스를 만들 수 있다.
 
 ## LocalTime
-java.time.LocalTime
+- java.time.LocalTime
+- LocalTime 인스턴스는 시간을 표현하는 불변 객체다.
+- 시간 문자열에서 LocalTime의 인스턴스를 만들 수 있다.
 
 ## LocalDateTime
-java.time.LocalDateTime
+- java.time.LocalDateTime
+- LocalDateTime은 LocalDate와 LocalTime을 쌍으로 갖는 복합 클래스다. 날짜와 시간을 모두 표현하는 불변 객체다.
 
 ## Instant
-java.time.Instant
+- java.time.Instant
+- Instant 인스턴스는 유닉스 에포크 시간([Unix epoch time](https://github.com/yoo-jaein/TIL/blob/main/Java/Unix_epoch_time.md), 1970년 1월 1일 0시 0분 0초 UTC)을 기준으로 특정 지점까지의 시간을 초로 표현하는 불변 객체다.
+- 팩토리 메서드 ofEpochSecond()에 초를 넘겨줘서 Instant 인스턴스를 만들 수 있다.
+- 나노초(10억분의 1초)의 정밀도를 제공한다.
 
 ## Duration
-java.time.Duration
+- java.time.Duration
+- Duration 인스턴스는 두 시간 객체 사이의 지속시간을 표현하는 불변 객체다.
+- 초와 나노초로 시간 단위를 표현한다.
+- 두 개의 LocalTime, 두 개의 LocalDateTime, 두 개의 Instant로 Duration 인스턴스를 만들 수 있다.
 
 ## Period
+- java.time.Period
+- Period 인스턴스는 두 시간 객체 사이의 지속시간을 표현하는 불변 객체다.
+- 년, 월, 일로 시간 단위를 표현한다.
 
 ## TemporalUnit
 
 ## ChronoUnit
 
 ## TemporalAdjusters
-TemporalAdjusters 여러 TemporalAdjuster를 반환하는 정적 팩토리 메서드를 포함하는 클래스
-TemporalAdjuster 인터페이스
+- TemporalAdjusters : 여러 TemporalAdjuster를 반환하는 정적 팩토리 메서드를 포함하는 클래스
+- TemporalAdjuster : 인터페이스
 
 ## DateTimeFormatter
-java.time.format.DateTimeFormatter
-BASIC_ISO_DATE
-ISO_LOCAL_DATE
+- java.time.format.DateTimeFormatter
+- BASIC_ISO_DATE
+- ISO_LOCAL_DATE
 
 ## ZoneId
-java.time.ZoneId
-ZoneRules
-ZoneOffset
-ZonedDateTime
-OffsetDateTime
+- java.time.ZoneId
+- ZoneRules
+- ZoneOffset
+- ZonedDateTime
+- OffsetDateTime
 
 ## 참고
